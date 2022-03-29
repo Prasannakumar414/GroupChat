@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>ClientPage</title>
+  </head>
+  <body>
+
+    <h1>Chat with Server</h1>
+
+
+    <form name="form" id="myForm" enctype="multipart/form-data">
+      <label for="name">First name:</label><br>
+      <input type="text" id="name" name="name"><br>
+      <button type="submit">Submit</button>
+    </form>
+
+    <p id="connect">Not Connected to Server</p>
+    <br>
+    <br>
+
+
+
+    <script>
+      //console.log('hii')
+      var name=""
+      const myForm = document.getElementById('myForm')
+      myForm.addEventListener('submit',function(e){
+        e.preventDefault()
+        var n = myForm.name
+        name=n.value
+        console.log(n.value)
+        fetch('/nick', {
+          method: 'POST',
+          body: new URLSearchParams({
+              'name': n.value
+          })
+      });
+      });
+      var button = document.createElement("button");
+      button.innerHTML = "Connect to Server";
+      var body = document.getElementsByTagName("body")[0];
+      body.appendChild(button);
+      var button1 = document.createElement("button");
+      button1.innerHTML = "Enter Message";
+      body.appendChild(button1);
+      button.addEventListener ("click", function() {
+        let socket = new WebSocket("ws:localhost:8080/ws");
+        console.log("Attempting Connection...");
+        socket.onopen = () => {
+            console.log("Successfully Connected");
+            para=document.getElementById("connect")
+            para.innerHTML="Connected Succesfully"
+        }
+        button1.addEventListener ("click", function() {
+            var msg = window.prompt("Enter your message: ");
+            var p = document.createElement("p");
+            var textNode = document.createTextNode(name+" : "+msg);
+            p.appendChild(textNode);
+            document.body.appendChild(p);
+            socket.send(msg)
+        });
+        
+        socket.onmessage = function (evt) { 
+                  var received_msg = evt.data;
+                  const p = document.createElement("p");
+                  const textNode = document.createTextNode(received_msg);
+                  p.appendChild(textNode);
+                  document.body.appendChild(p);
+                  
+               };
+        
+        socket.onclose = event => {
+            console.log("Socket Closed Connection: ", event);
+            socket.send("Client Closed!")
+        };
+
+        socket.onerror = error => {
+            console.log("Socket Error: ", error);
+        };
+
+      });
+    </script>
+  </body>
+</html>
