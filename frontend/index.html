@@ -57,7 +57,11 @@
         button1.addEventListener ("click", function() {
             var msg = window.prompt("Enter your message: ");
             var p = document.createElement("p");
-            var textNode = document.createTextNode(name+" : "+msg);
+            var today = new Date();
+            var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+            var dateTime = date+' '+time;
+            var textNode = document.createTextNode(name+" : "+msg+" "+dateTime);
             p.appendChild(textNode);
             document.body.appendChild(p);
             socket.send(msg)
