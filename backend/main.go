@@ -75,7 +75,7 @@ func (s *Server) WebsocketEndPoint(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
+	s.ReadWriteMessages(chatroom, name)
 }
 func (s *Server) setuproutes() {
 	fileserver := http.FileServer(http.Dir("/home/prasanna/Programs/Projects/RealtimeChat/frontend"))
@@ -87,6 +87,7 @@ func (s *Server) setuproutes() {
 func main() {
 	fmt.Println("Server is UP!!!!")
 	server := CreateServer()
+	defer close(server.client, server.context, server.cancel)
 	server.setuproutes()
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

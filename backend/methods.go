@@ -18,11 +18,10 @@ import (
 func CreateServer() *Server {
 	client, ctx, cancel, err := connect("mongodb://localhost:27017")
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
-	defer close(client, ctx, cancel)
 
-	return NewServer(client, ctx)
+	return NewServer(client, ctx, cancel)
 }
 
 func (s *Server) GetLastmsgs(chatroomid string, limit int64) []bson.D {
@@ -94,4 +93,27 @@ func SendMessage(name string, msg string, ws *websocket.Conn) error {
 		log.Println(err)
 	}
 	return err
+}
+
+func (s *Server) ReadWriteMessages(c *Chatroom, name string) {
+	ws := c.Nicks[name]
+	for {
+		msg, err := read(ws)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		s.StoreMyMessage(msg, c.Chatroomid, name)
+		c.Sendmsg(msg, name)
+	}
+}
+
+func read(ws *websocket.Conn) (string, error) {
+	messageType, message, err := ws.ReadMessage()
+	if err != nil {
+		log.Println(err)
+		return string(messageType), err
+	}
+	newMessage := string(message)
+	return newMessage, err
 }

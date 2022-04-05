@@ -19,6 +19,7 @@ type Server struct {
 	Chatroommap map[string]*Chatroom
 	client      *mongo.Client
 	context     context.Context
+	cancel      context.CancelFunc
 }
 
 func NewChatroom(chatroomid string) *Chatroom {
@@ -28,11 +29,12 @@ func NewChatroom(chatroomid string) *Chatroom {
 	}
 }
 
-func NewServer(clientname *mongo.Client, context context.Context) *Server {
+func NewServer(clientname *mongo.Client, context context.Context, cancel context.CancelFunc) *Server {
 	return &Server{
 		Chatroommap: make(map[string]*Chatroom),
 		client:      clientname,
 		context:     context,
+		cancel:      cancel,
 	}
 }
 
